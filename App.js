@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AuthScreen from './Screens/AuthScreen';
 import FavoritesScreen from './Screens/FavoritesScreen';
+import AddVideoScreen from './Screens/AddVideoScreen';
 import { AuthProvider } from './AuthContext';
 
 const Stack = createNativeStackNavigator();
@@ -20,6 +21,11 @@ export default function App() {
           <Stack.Screen 
             name="FavoritesScreen" 
             component={FavoritesScreen} 
+            options={{ headerShown: false, animation: 'none' }} 
+          />
+          <Stack.Screen 
+            name="AddVideoScreen" 
+            component={AddVideoScreen} 
             options={{ headerShown: false, animation: 'none' }} 
           />
         </Stack.Navigator>
