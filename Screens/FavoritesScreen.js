@@ -18,10 +18,10 @@ const FavoritesScreen = () => {
     const [videos, setVideos] = useState([]);
     const [lists, setLists] = useState([]);
     const [selectedList, setSelectedList] = useState("Favorites");
+    const [refreshData, setRefreshData] = useState(false); // Estado para forzar recarga
 
     const getThumbnailUrl = (videoUrl, platform) => {
         if (platform === "YouTube") {
-            // Obtener miniatura de YouTube desde el enlace
             const youtubeRegex = /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]+)/;
             const match = videoUrl.match(youtubeRegex);
             if (match && match[1]) {
@@ -29,22 +29,26 @@ const FavoritesScreen = () => {
             }
             return require('../Resources/Youtube.png');
         } else if (platform === "Instagram") {
-            // Imagen local para Instagram
             return require('../Resources/Instagram.png');
         }
-    
-        // Imagen genérica si la plataforma no es válida
         return require('../Resources/Default.jpg');
     };
-       
 
-    // Fetch video lists
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchVideos(); // Recarga los videos al volver
+        });
+    
+        return unsubscribe; // Limpia el listener al desmontar
+    }, [navigation]);
+    
+
     const fetchLists = async () => {
         try {
             const querySnapshot = await getDocs(collection(db, 'videos'));
             const items = [];
             querySnapshot.forEach((doc) => {
-                items.push(doc.data().list); // Assuming 'list' is the field you want to display
+                items.push(doc.data().list);
             });
             const uniqueItems = [...new Set(items)].filter(item => item !== "Favorites");
 
@@ -64,7 +68,7 @@ const FavoritesScreen = () => {
                 fetchedVideos.push({
                     id: doc.id,
                     ...data,
-                    thumbnail: getThumbnailUrl(data.url, data.platform) // Generar miniatura con plataforma
+                    thumbnail: getThumbnailUrl(data.url, data.platform)
                 });
             });
             setVideos(fetchedVideos);
@@ -72,25 +76,31 @@ const FavoritesScreen = () => {
             console.error('Error fetching videos:', error);
         }
     };
-    
-    
 
     useEffect(() => {
         if (user) {
             fetchLists();
             fetchVideos();
         }
-    }, [user, selectedList]);
+    }, [user, selectedList, refreshData]); // Añadimos refreshData como dependencia
 
     const handleMenuPress = async () => {
         try {
             await signOut(auth);
-            
             navigation.navigate("AuthScreen");
         } catch (error) {
             console.error("Error signing out: ", error);
             Alert.alert("Error", "No se pudo cerrar sesión. Intenta nuevamente.");
         }
+    };
+
+    const handleAddVideo = () => {
+        navigation.navigate("AddVideoScreen", {
+            onGoBack: () => {
+                console.log("Regresando de AddVideoScreen"); // Para depuración
+                setRefreshData(!refreshData); // Cambia el estado para forzar la recarga
+            },
+        });
     };
 
     const openActionSheet = () =>
@@ -109,9 +119,14 @@ const FavoritesScreen = () => {
             },
         );
 
+        const handleVideoPress = (video) => {
+            navigation.navigate("VideoDetailsScreen", { video });
+        };
+
+
     return (
         <View style={{ flex: 1 }}>
-            <Header title="VideosApp" onMenuPress={handleMenuPress} />
+            <Header title="VideosApp" onMenuPress={handleMenuPress}  icon="log-out"/>
             <ImageBackground source={Background} style={styles.backgroundImage}>
                 <View style={styles.container}>
                     <TouchableOpacity onPress={openActionSheet} style={styles.listSelector}>
@@ -123,25 +138,30 @@ const FavoritesScreen = () => {
 
                     <ScrollView style={{ flex: 1, width: '100%' }}>
                         {videos.map(video => (
-                            <View key={video.id} style={styles.videoCard}>
+                            <TouchableOpacity 
+                                key={video.id} 
+                                style={styles.videoCard} 
+                                onPress={() => handleVideoPress(video)}
+                            >
                                 <Image source={video.thumbnail} style={styles.thumbnail} />
                                 <View style={styles.videoInfo}>
                                     <Text style={styles.videoTitle}>{video.title}</Text>
                                     <Text style={styles.videoDate}>Added: {video.addDate}</Text>
                                 </View>
-                            </View>
+                            </TouchableOpacity>
                         ))}
                     </ScrollView>
                 </View>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate("AddVideoScreen")}>
+                    onPress={handleAddVideo}>
                     <Text style={styles.buttonText}>Add Video</Text>
                 </TouchableOpacity>
             </ImageBackground>
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

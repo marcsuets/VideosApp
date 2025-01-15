@@ -4,11 +4,11 @@ import { Ionicons } from '@expo/vector-icons'; // Asegúrate de tener @expo/vect
 import colors from '../colors';
 import LinearGradient  from 'expo-linear-gradient';
 
-const Header = ({ title, onMenuPress }) => {
+const Header = ({ title, onMenuPress, icon }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onMenuPress}>
-        <Ionicons name="log-out" size={32} color={colors.blue}/>
+        <Ionicons name={icon} size={32} color={colors.blue}/>
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
     </View>
