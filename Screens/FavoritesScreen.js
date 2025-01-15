@@ -7,7 +7,7 @@ import Background from '../Resources/background.jpg';
 import colors from "../colors";
 import app from '../firebaseConfig';
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, signOut } from "firebase/auth";
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -82,7 +82,16 @@ const FavoritesScreen = () => {
         }
     }, [user, selectedList]);
 
-    const handleMenuPress = () => { Alert.alert('Menu button pressed'); };
+    const handleMenuPress = async () => {
+        try {
+            await signOut(auth);
+            
+            navigation.navigate("AuthScreen");
+        } catch (error) {
+            console.error("Error signing out: ", error);
+            Alert.alert("Error", "No se pudo cerrar sesión. Intenta nuevamente.");
+        }
+    };
 
     const openActionSheet = () =>
         ActionSheetIOS.showActionSheetWithOptions(

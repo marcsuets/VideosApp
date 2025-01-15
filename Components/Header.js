@@ -8,7 +8,7 @@ const Header = ({ title, onMenuPress }) => {
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={onMenuPress}>
-        <Ionicons name="menu" size={32} color={colors.blue} />
+        <Ionicons name="log-out" size={32} color={colors.blue}/>
       </TouchableOpacity>
       <Text style={styles.title}>{title}</Text>
     </View>
