@@ -60,7 +60,13 @@ const FavoritesScreen = () => {
 
     const fetchVideos = async () => {
         try {
-            const q = query(collection(db, 'videos'), where('list', '==', selectedList));
+            if (!user) return;
+    
+            const q = query(
+                collection(db, 'videos'),
+                where('list', '==', selectedList),
+                where('author', '==', user.uid) // Filtra por el autor
+            );
             const querySnapshot = await getDocs(q);
             const fetchedVideos = [];
             querySnapshot.forEach((doc) => {
@@ -76,6 +82,7 @@ const FavoritesScreen = () => {
             console.error('Error fetching videos:', error);
         }
     };
+    
 
     useEffect(() => {
         if (user) {

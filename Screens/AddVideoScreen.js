@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Button, ActionSheetIOS } from "react-native";
-import { getFirestore, collection, addDoc, getDocs } from "firebase/firestore";
+import { getFirestore, collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import app from "../firebaseConfig"; // Importa tu configuración de Firebase
+import app from "../firebaseConfig";
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -19,23 +19,31 @@ const AddVideoScreen = ({ navigation }) => {
   // Fetch items from Firestore
   const fetchLists = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'videos'));
+      if (!user) return;
+
+      // Filtrar por listas creadas por el usuario actual
+      const q = query(
+        collection(db, "videos"),
+        where("author", "==", user.uid) // Filtra las listas del usuario autenticado
+      );
+
+      const querySnapshot = await getDocs(q);
       const items = [];
       querySnapshot.forEach((doc) => {
-        items.push(doc.data().list); // Assuming 'list' is the field you want to display
+        items.push(doc.data().list); // Extraer las listas
       });
-      const uniqueItems = [...new Set(items)].filter(item => item !== "Favorites");
+      const uniqueItems = [...new Set(items)].filter((item) => item !== "Favorites");
 
-      setLists(['Cancel', 'Favorites', ...uniqueItems]);
+      setLists(["Cancel", "Favorites", ...uniqueItems]);
     } catch (error) {
-      console.error('Error fetching Firestore data:', error);
+      console.error("Error fetching Firestore data:", error);
     }
   };
 
   // Obtener las listas del usuario
   useEffect(() => {
     if (user) {
-      setLists(fetchLists); // Temporarily setting some example lists
+      fetchLists(); // Llama a la función para cargar las listas
     }
   }, [user]);
 
@@ -47,19 +55,18 @@ const AddVideoScreen = ({ navigation }) => {
     }
 
     try {
-      // Si se ha introducido un nombre para la nueva lista, se usa como selectedList
       const listToUse = newList.trim() !== "" ? newList : selectedList;
 
       await addDoc(collection(db, "videos"), {
         title,
         url,
         platform,
-        author: user.email,
+        author: user.uid, // Usamos uid en lugar del email
         addDate: new Date().toISOString(),
-        list: listToUse, // Usamos el valor de la nueva lista o la lista seleccionada
+        list: listToUse,
       });
       Alert.alert("Éxito", "El video se ha añadido correctamente.");
-      navigation.goBack(); // Volver a la pantalla anterior
+      navigation.goBack();
     } catch (error) {
       Alert.alert("Error", error.message);
     }
@@ -70,9 +77,9 @@ const AddVideoScreen = ({ navigation }) => {
       {
         options: lists,
         cancelButtonIndex: 0,
-        userInterfaceStyle: 'dark',
+        userInterfaceStyle: "dark",
       },
-      buttonIndex => {
+      (buttonIndex) => {
         if (buttonIndex === 0) {
           // cancel action
         } else if (buttonIndex === 1) {
@@ -80,65 +87,63 @@ const AddVideoScreen = ({ navigation }) => {
         } else {
           setSelectedList(lists[buttonIndex]);
         }
-      },
+      }
     );
 
   const openActionSheetPlatform = () =>
     ActionSheetIOS.showActionSheetWithOptions(
       {
-        options: ['YouTube', 'Instagram', 'Cancel'],
+        options: ["YouTube", "Instagram", "Cancel"],
         cancelButtonIndex: 2,
       },
-      buttonIndex => {
+      (buttonIndex) => {
         if (buttonIndex === 0) {
           setPlatform("YouTube");
         } else if (buttonIndex === 1) {
           setPlatform("Instagram");
         }
-      },
+      }
     );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Añadir Video</Text>
+      <Text style={styles.title}>Add video</Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Título del video"
+        placeholder="Video title"
         value={title}
         onChangeText={setTitle}
       />
 
       <TextInput
         style={styles.input}
-        placeholder="URL del video"
+        placeholder="Video URL"
         value={url}
         onChangeText={setUrl}
       />
 
       <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Plataforma</Text>
+        <Text style={styles.label}>Platform</Text>
         <Text>{platform}</Text>
         <Button onPress={openActionSheetPlatform} title="Choose platform" />
       </View>
 
       <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Seleccionar Lista</Text>
+        <Text style={styles.label}>Choose list</Text>
         <Text>{selectedList}</Text>
         <Button onPress={openActionSheetList} title="Choose list" />
-        <Text style={styles.label}>Crear nueva lista (si no quieres usar una existente):</Text>
+        <Text style={styles.label}>Create new list (optional):</Text>
         <TextInput
           style={styles.input}
-          placeholder="Crear lista nueva"
+          placeholder="New list"
           value={newList}
           onChangeText={setNewList}
         />
       </View>
 
-      
-
       <TouchableOpacity style={styles.button} onPress={handleAddVideo}>
-        <Text style={styles.buttonText}>Añadir Video</Text>
+        <Text style={styles.buttonText}>Add video</Text>
       </TouchableOpacity>
     </View>
   );
