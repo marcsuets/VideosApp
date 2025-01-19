@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, ImageBackground } from "react-native";
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import app from "../firebaseConfig"; // Importa tu configuración de Firebase
+import Background from "../Resources/background.jpg";
+import colors from "../colors";
 
 const auth = getAuth(app);
 
@@ -40,37 +42,41 @@ const AuthScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>{isRegistering ? "Registrarse" : "Iniciar sesión"}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      {isRegistering ? (
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>Registrarse</Text>
-        </TouchableOpacity>
-      ) : (
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Iniciar sesión</Text>
-        </TouchableOpacity>
-      )}
-      <TouchableOpacity onPress={() => setIsRegistering(!isRegistering)}>
-        <Text style={styles.toggleText}>
-          {isRegistering ? "¿Ya tienes una cuenta? Inicia sesión" : "¿No tienes una cuenta? Regístrate"}
-        </Text>
-      </TouchableOpacity>
+    <View style={{flex: 1}}>
+      <ImageBackground source={Background} style={styles.backgroundImage}>
+        <View style={styles.container}>
+          <Text style={styles.title}>{isRegistering ? "Registrarse" : "Iniciar sesión"}</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Correo electrónico"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Contraseña"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          {isRegistering ? (
+            <TouchableOpacity style={styles.button} onPress={handleRegister}>
+              <Text style={styles.buttonText}>Registrarse</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={handleLogin}>
+              <Text style={styles.buttonText}>Iniciar sesión</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={() => setIsRegistering(!isRegistering)}>
+            <Text style={styles.toggleText}>
+              {isRegistering ? "¿Ya tienes una cuenta? Inicia sesión" : "¿No tienes una cuenta? Regístrate"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -81,12 +87,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#fff",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
     marginBottom: 24,
+    color: colors.black
   },
   input: {
     width: "100%",
@@ -95,22 +106,23 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
+    backgroundColor: colors.white
   },
   button: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#007BFF",
+    backgroundColor: colors.black,
     borderRadius: 8,
     alignItems: "center",
     marginVertical: 8,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.blue,
     fontSize: 16,
     fontWeight: "bold",
   },
   toggleText: {
-    color: "#007BFF",
+    color: colors.pink,
     fontSize: 14,
     marginTop: 16,
     textDecorationLine: "underline",
