@@ -64,15 +64,30 @@ const VideoDetailsScreen = () => {
 
     const videoId = extractYouTubeId(video.url);
 
+    const getVideoPlayerHeight = () => {
+        if (video.platform === "YouTube") {
+            return 200; // Altura para YouTube
+        } else if (video.platform === "Instagram") {
+            return 500; // Altura para Instagram
+        }
+        return 200; // Altura predeterminada
+    };
+
     return (
         <View style={{ flex: 1 }}>
             <Header title="VideosApp" onMenuPress={handleMenuPress} icon="arrow-back" />
             <ImageBackground source={Background} style={styles.backgroundImage}>
                 <ScrollView style={styles.container}>
-                    {videoId ? (
+                    {video.platform === "YouTube" && videoId ? (
                         <WebView
                             source={{ uri: `https://www.youtube.com/embed/${videoId}` }}
-                            style={styles.videoPlayer}
+                            style={[styles.videoPlayer, { height: getVideoPlayerHeight() }]}
+                            allowsFullscreenVideo={true}
+                        />
+                    ) : video.platform === "Instagram" ? (
+                        <WebView
+                            source={{ uri: video.url }}
+                            style={[styles.videoPlayer, { height: getVideoPlayerHeight() }]}
                             allowsFullscreenVideo={true}
                         />
                     ) : (
@@ -113,6 +128,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontWeight: "bold",
         marginBottom: 10,
+        color: colors.blue
     },
     info: {
         fontSize: 16,

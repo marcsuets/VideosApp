@@ -153,6 +153,7 @@ const FavoritesScreen = () => {
                                 <Image source={video.thumbnail} style={styles.thumbnail} />
                                 <View style={styles.videoInfo}>
                                     <Text style={styles.videoTitle}>{video.title}</Text>
+                                    <Text style={styles.videoDate}>{video.platform}</Text>
                                     <Text style={styles.videoDate}>Added: {video.addDate}</Text>
                                 </View>
                             </TouchableOpacity>
@@ -214,9 +215,9 @@ const styles = StyleSheet.create({
     },
     videoCard: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
+        backgroundColor: colors.black,
         padding: 15,
-        marginVertical: 8,
+        marginVertical: 4,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -224,6 +225,9 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 3,
         alignItems: 'center',
+        width: '94%',
+        marginLeft: '3%',
+        marginRight: '3%',
     },
     videoInfo: {
         marginLeft: 10,
@@ -233,6 +237,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginBottom: 5,
+        color: colors.blue
     },
     videoDate: {
         fontSize: 14,
