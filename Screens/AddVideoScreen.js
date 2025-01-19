@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Button, ActionSheetIOS } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View, Alert, Button, ActionSheetIOS, ImageBackground } from "react-native";
 import { getFirestore, collection, addDoc, getDocs, query, where } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import app from "../firebaseConfig";
+import Header from "../Components/Header";
+import Background from "../Resources/background.jpg";
+import colors from "../colors";
 
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -105,46 +108,56 @@ const AddVideoScreen = ({ navigation }) => {
       }
     );
 
+  const handleMenuPress = () => {
+    navigation.goBack();
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add video</Text>
+    <View style={{flex: 1}}>
+      <Header title="VideosApp" onMenuPress={handleMenuPress} icon="arrow-back" />
+      <ImageBackground source={Background} style={styles.backgroundImage}>
+          <View style={styles.container}>
+            
+            <Text style={styles.title}>Add video</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Video title"
-        value={title}
-        onChangeText={setTitle}
-      />
+            <TextInput
+              style={styles.input}
+              placeholder="Video title"
+              value={title}
+              onChangeText={setTitle}
+            />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Video URL"
-        value={url}
-        onChangeText={setUrl}
-      />
+            <TextInput
+              style={styles.input}
+              placeholder="Video URL"
+              value={url}
+              onChangeText={setUrl}
+            />
 
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Platform</Text>
-        <Text>{platform}</Text>
-        <Button onPress={openActionSheetPlatform} title="Choose platform" />
-      </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.label}>Platform</Text>
+              <Text>{platform}</Text>
+              <Button onPress={openActionSheetPlatform} title="Choose platform" />
+            </View>
 
-      <View style={styles.pickerContainer}>
-        <Text style={styles.label}>Choose list</Text>
-        <Text>{selectedList}</Text>
-        <Button onPress={openActionSheetList} title="Choose list" />
-        <Text style={styles.label}>Create new list (optional):</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="New list"
-          value={newList}
-          onChangeText={setNewList}
-        />
-      </View>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.label}>Choose list</Text>
+              <Text>{selectedList}</Text>
+              <Button onPress={openActionSheetList} title="Choose list" />
+              <Text style={styles.label}>Create new list (optional):</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="New list"
+                value={newList}
+                onChangeText={setNewList}
+              />
+            </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleAddVideo}>
-        <Text style={styles.buttonText}>Add video</Text>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.button} onPress={handleAddVideo}>
+              <Text style={styles.buttonText}>Add video</Text>
+            </TouchableOpacity>
+          </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -155,7 +168,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#fff",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
   },
   title: {
     fontSize: 24,
@@ -169,6 +186,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
+    backgroundColor: colors.white
   },
   pickerContainer: {
     width: "100%",
@@ -182,13 +200,13 @@ const styles = StyleSheet.create({
   button: {
     width: "100%",
     padding: 16,
-    backgroundColor: "#007BFF",
+    backgroundColor: colors.black,
     borderRadius: 8,
     alignItems: "center",
     marginVertical: 8,
   },
   buttonText: {
-    color: "#fff",
+    color: colors.blue,
     fontSize: 16,
     fontWeight: "bold",
   },
